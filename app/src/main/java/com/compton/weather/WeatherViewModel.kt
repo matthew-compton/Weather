@@ -17,11 +17,9 @@ class WeatherViewModel : ViewModel() {
     fun fetchWeather() {
         viewModelScope.launch {
             try {
-                val weather = repository.getWeather()
-                weatherMutableLiveData.value = weather
+                weatherMutableLiveData.value = repository.getWeather()
             } catch (e: Exception) {
-                // Handle error
-                Log.e("DEBUG", "Exception: $e")
+                Log.e(WeatherViewModel::class.simpleName, "Exception: $e")
             }
         }
     }

@@ -11,6 +11,8 @@ object RetrofitInstance {
     private const val BASE_URL = "https://api.openweathermap.org/data/2.5/"
 
     private const val QUERY_PARAM_API_KEY = "appid"
+    private const val QUERY_PARAM_UNITS = "units"
+    private const val QUERY_PARAM_UNITS_IMPERIAL = "imperial"
 
     private val retrofit: Retrofit by lazy {
         val loggingInterceptor = HttpLoggingInterceptor()
@@ -20,6 +22,7 @@ object RetrofitInstance {
             var request = chain.request()
             val url = request.url.newBuilder()
                 .addQueryParameter(QUERY_PARAM_API_KEY, BuildConfig.API_KEY)
+                .addQueryParameter(QUERY_PARAM_UNITS, QUERY_PARAM_UNITS_IMPERIAL)
                 .build()
             request = request.newBuilder()
                 .url(url)
