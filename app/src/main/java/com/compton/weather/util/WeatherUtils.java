@@ -1,4 +1,4 @@
-package com.compton.weather;
+package com.compton.weather.util;
 
 public class WeatherUtils {
 

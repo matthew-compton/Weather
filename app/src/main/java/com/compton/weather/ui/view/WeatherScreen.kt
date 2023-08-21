@@ -1,6 +1,5 @@
-package com.compton.weather
+package com.compton.weather.ui.view
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.CircularProgressIndicator
@@ -10,6 +9,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
+import com.compton.weather.util.WeatherUtils
+import com.compton.weather.ui.vm.WeatherViewModel
 
 @Composable
 fun WeatherScreen(viewModel: WeatherViewModel) {

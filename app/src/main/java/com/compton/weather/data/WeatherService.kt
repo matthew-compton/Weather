@@ -1,4 +1,4 @@
-package com.compton.weather
+package com.compton.weather.data
 
 import retrofit2.http.GET
 import retrofit2.http.Query

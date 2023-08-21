@@ -1,15 +1,17 @@
-package com.compton.weather
+package com.compton.weather.ui.vm
 
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.compton.weather.data.WeatherRepository
+import com.compton.weather.data.WeatherResponse
 import kotlinx.coroutines.launch
 
-class WeatherViewModel : ViewModel() {
-
-    private val repository = WeatherRepository()
+class WeatherViewModel(
+    private val repository: WeatherRepository
+) : ViewModel() {
 
     private val weatherMutableLiveData = MutableLiveData<WeatherResponse>()
     val weatherLiveData: LiveData<WeatherResponse> = weatherMutableLiveData

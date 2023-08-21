@@ -1,8 +1,8 @@
-package com.compton.weather
+package com.compton.weather.data
 
-class WeatherRepository {
-
-    private val weatherService = RetrofitInstance.weatherService
+class WeatherRepository(
+    private val weatherService: WeatherService
+) {
 
     suspend fun getWeather(): WeatherResponse {
         return weatherService.getWeather(
