@@ -3,10 +3,10 @@ package com.compton.weather.data.local
 import com.compton.weather.data.remote.WeatherListResponse
 
 data class WeatherData(
-    val name: String,
-    val latitude: Double,
-    val longitude: Double,
-    val temperature: Double
+    val name: String?,
+    val latitude: Double?,
+    val longitude: Double?,
+    val temperature: Double?
 ) {
     companion object {
         fun fromWeatherListResponse(weather: WeatherListResponse): WeatherData {

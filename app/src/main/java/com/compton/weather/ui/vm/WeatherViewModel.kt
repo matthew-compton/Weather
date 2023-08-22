@@ -32,27 +32,54 @@ class WeatherViewModel(
     fun fetchWeather() {
         stateMutableLiveData.value = State.Loading
 
-        // TODO - check for local cache
-        // TODO - check for fresh location data
-        // TODO - wait for manual entry
+        // Check for location data
+        if (locationMutableLiveData.value == null) {
+            stateMutableLiveData.value = State.Done
+            return
+        }
 
         viewModelScope.launch {
             try {
-                val city = locationMutableLiveData.value?.city ?: "Atlanta"
-                weatherMutableLiveData.value = repository.getWeather(city)
-//                weatherMutableLiveData.value = repository.getWeather(latitude, longitude)
-                stateMutableLiveData.value = State.Done
+
+                // Check for city data
+                val city = locationMutableLiveData.value!!.city
+                if (!city.isNullOrEmpty()) {
+                    weatherMutableLiveData.value = repository.getWeather(city)
+                    stateMutableLiveData.value = State.Done
+                    return@launch
+                }
+
+                // Check for coordinate data
+                val latitude = locationMutableLiveData.value!!.latitude
+                val longitude = locationMutableLiveData.value!!.longitude
+                if (latitude != null && longitude != null) {
+                    weatherMutableLiveData.value =
+                        repository.getWeather(latitude.toString(), longitude.toString())
+                    stateMutableLiveData.value = State.Done
+                    return@launch
+                }
+
             } catch (e: Exception) {
                 Log.e(WeatherViewModel::class.simpleName, "Exception: $e")
                 stateMutableLiveData.value = State.Error
             }
         }
+    }
 
+    fun fetchLocation() {
+        // TODO
     }
 
     fun updateLocation(location: LocationData) {
         locationMutableLiveData.value = location
-        fetchWeather()
+    }
+
+    fun onLocationCheckFailed() {
+        stateMutableLiveData.value = State.Done
+    }
+
+    fun onLocationCheckCanceled() {
+        stateMutableLiveData.value = State.Done
     }
 
 }

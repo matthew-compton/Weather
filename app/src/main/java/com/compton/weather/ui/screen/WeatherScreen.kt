@@ -3,8 +3,10 @@ package com.compton.weather.ui.screen
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -29,6 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
+import com.compton.weather.data.local.LocationData
 import com.compton.weather.data.local.WeatherData
 import com.compton.weather.data.remote.WeatherListResponse
 import com.compton.weather.ui.vm.WeatherViewModel
@@ -43,15 +46,18 @@ fun WeatherScreen(viewModel: WeatherViewModel) {
     val state by viewModel.stateLiveData.observeAsState(State.Loading)
 
     LaunchedEffect(Unit) {
+        if (location == null) {
+            viewModel.fetchLocation()
+        }
         if (weather == null) {
             viewModel.fetchWeather()
         }
     }
 
     Column {
-        TextInputComponent(location?.city ?: "")
+        TextInputComponent(viewModel)
         when (state) {
-            State.Done -> WeatherView(weather)
+            State.Done -> DoneView(weather)
             State.Loading -> LoadingView()
             State.Error -> ErrorView()
         }
@@ -59,12 +65,12 @@ fun WeatherScreen(viewModel: WeatherViewModel) {
 
 }
 
-@Preview
 @Composable
 fun TextInputComponent(
-    @PreviewParameter(LocationPreviewParameterProvider::class) location: String
+    viewModel: WeatherViewModel
 ) {
-    var textValue by remember { mutableStateOf(TextFieldValue(location)) }
+    val city = viewModel.locationLiveData.value?.city ?: ""
+    var textValue by remember { mutableStateOf(TextFieldValue(city)) }
     val localFocusManager = LocalFocusManager.current
     Column {
         TextField(
@@ -77,24 +83,38 @@ fun TextInputComponent(
                 .padding(16.dp)
                 .fillMaxWidth(),
             keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Search,
+                imeAction = ImeAction.Done,
                 capitalization = KeyboardCapitalization.Words,
                 autoCorrect = true,
                 keyboardType = KeyboardType.Text,
             ),
             keyboardActions = KeyboardActions(
-                onDone = { localFocusManager.clearFocus() }
+                onDone = {
+                    localFocusManager.clearFocus()
+                    val location = LocationData(textValue.text)
+                    viewModel.updateLocation(location)
+                    viewModel.fetchWeather()
+                }
             )
         )
     }
 }
 
-class LocationPreviewParameterProvider : PreviewParameterProvider<String> {
-    override val values: Sequence<String>
-        get() = sequenceOf("Atlanta")
+@Preview(showBackground = true)
+@Composable
+fun DoneView(
+    @PreviewParameter(WeatherPreviewParameterProvider::class) weather: WeatherData?
+) {
+    Column {
+        if (weather == null) {
+            EmptyView()
+        } else {
+            WeatherView(weather)
+        }
+    }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun WeatherView(
     @PreviewParameter(WeatherPreviewParameterProvider::class) weather: WeatherData?
@@ -106,7 +126,10 @@ fun WeatherView(
             .fillMaxWidth()
     ) {
         Column {
-            Text("Current Temperature:")
+            Text("City:")
+            Text("${weather?.name}")
+            Spacer(modifier = Modifier.height(16.dp))
+            Text("Temperature:")
             Text("${weather?.temperature}${WeatherUtils.DEGREES_F}")
         }
     }
@@ -117,28 +140,35 @@ class WeatherPreviewParameterProvider : PreviewParameterProvider<WeatherData> {
         get() = sequenceOf(WeatherData.fromWeatherListResponse(WeatherListResponse.mock()))
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun LoadingView() {
-    Column {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            CircularProgressIndicator()
-        }
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        CircularProgressIndicator()
     }
 }
 
-@Preview
+@Preview(showBackground = true)
+@Composable
+fun EmptyView() {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Text(text = "No results found.")
+    }
+}
+
+@Preview(showBackground = true)
 @Composable
 fun ErrorView() {
-    Column {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Text(text = "An error has occurred.\nPlease try again.")
-        }
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Text(text = "An error has occurred.\nPlease try again.")
     }
 }

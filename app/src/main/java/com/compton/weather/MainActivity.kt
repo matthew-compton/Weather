@@ -72,6 +72,15 @@ class MainActivity : ComponentActivity() {
                     }
                     val locationData = LocationData(city, latitude, longitude)
                     weatherViewModel.updateLocation(locationData)
+                    weatherViewModel.fetchWeather()
+                }
+                .addOnFailureListener {
+                    Log.i(MainActivity::class.simpleName, "LocationServices failed.")
+                    weatherViewModel.onLocationCheckFailed()
+                }
+                .addOnCanceledListener {
+                    Log.i(MainActivity::class.simpleName, "LocationServices canceled.")
+                    weatherViewModel.onLocationCheckCanceled()
                 }
         }
     }
