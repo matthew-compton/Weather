@@ -1,7 +1,7 @@
 package com.compton.weather.di
 
 import com.compton.weather.BuildConfig
-import com.compton.weather.data.WeatherService
+import com.compton.weather.data.remote.WeatherService
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor

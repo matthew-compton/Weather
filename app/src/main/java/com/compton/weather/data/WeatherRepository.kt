@@ -1,13 +1,26 @@
 package com.compton.weather.data
 
+import com.compton.weather.data.local.WeatherData
+import com.compton.weather.data.remote.WeatherService
+
 class WeatherRepository(
     private val weatherService: WeatherService
 ) {
 
-    suspend fun getWeather(): WeatherResponse {
-        return weatherService.getWeather(
-            latitude = "33.75",
-            longitude = "84.39"
+    suspend fun getWeather(latitude: String, longitude: String): WeatherData {
+        return WeatherData.fromWeatherListResponse(
+            weatherService.getWeather(
+                latitude = latitude,
+                longitude = longitude
+            )
+        )
+    }
+
+    suspend fun getWeather(city: String): WeatherData {
+        return WeatherData.fromWeatherListResponse(
+            weatherService.getWeather(
+                city = city
+            )
         )
     }
 

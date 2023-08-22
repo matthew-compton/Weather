@@ -5,7 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.compton.weather.ui.Screens
-import com.compton.weather.ui.view.WeatherScreen
+import com.compton.weather.ui.screen.WeatherScreen
 import com.compton.weather.ui.vm.WeatherViewModel
 
 @Composable
