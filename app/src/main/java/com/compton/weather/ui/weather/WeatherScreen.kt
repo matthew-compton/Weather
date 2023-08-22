@@ -1,4 +1,4 @@
-package com.compton.weather.ui.screen
+package com.compton.weather.ui.weather
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -34,32 +35,31 @@ import androidx.compose.ui.unit.dp
 import com.compton.weather.data.local.LocationData
 import com.compton.weather.data.local.WeatherData
 import com.compton.weather.data.remote.WeatherListResponse
-import com.compton.weather.ui.vm.WeatherViewModel
-import com.compton.weather.ui.vm.WeatherViewModel.*
+import com.compton.weather.ui.weather.WeatherViewModel.*
 import com.compton.weather.util.WeatherUtils
+import com.compton.weather.util.findActivity
+import com.compton.weather.util.setCachedLocation
 
 @Composable
 fun WeatherScreen(viewModel: WeatherViewModel) {
 
     val weather by viewModel.weatherLiveData.observeAsState(null)
     val location by viewModel.locationLiveData.observeAsState(null)
-    val state by viewModel.stateLiveData.observeAsState(State.Loading)
+    val state by viewModel.stateLiveData.observeAsState(WeatherState.Loading)
 
     LaunchedEffect(Unit) {
-        if (location == null) {
-            viewModel.fetchLocation()
-        }
         if (weather == null) {
             viewModel.fetchWeather()
         }
     }
 
     Column {
-        TextInputComponent(viewModel)
+        TextInputComponent(viewModel, location)
         when (state) {
-            State.Done -> DoneView(weather)
-            State.Loading -> LoadingView()
-            State.Error -> ErrorView()
+            WeatherState.Empty -> EmptyView()
+            WeatherState.Results -> ResultsView(weather)
+            WeatherState.Loading -> LoadingView()
+            WeatherState.Error -> ErrorView()
         }
     }
 
@@ -67,11 +67,14 @@ fun WeatherScreen(viewModel: WeatherViewModel) {
 
 @Composable
 fun TextInputComponent(
-    viewModel: WeatherViewModel
+    viewModel: WeatherViewModel,
+    location: LocationData?
 ) {
-    val city = viewModel.locationLiveData.value?.city ?: ""
+    val city = location?.city ?: ""
     var textValue by remember { mutableStateOf(TextFieldValue(city)) }
     val localFocusManager = LocalFocusManager.current
+    val context = LocalContext.current
+    val activity = context.findActivity()
     Column {
         TextField(
             value = textValue,
@@ -91,8 +94,11 @@ fun TextInputComponent(
             keyboardActions = KeyboardActions(
                 onDone = {
                     localFocusManager.clearFocus()
-                    val location = LocationData(textValue.text)
-                    viewModel.updateLocation(location)
+                    val search = textValue.text
+                    if (activity != null) {
+                        setCachedLocation(activity, search)
+                    }
+                    viewModel.setLocation(LocationData(search))
                     viewModel.fetchWeather()
                 }
             )
@@ -102,21 +108,7 @@ fun TextInputComponent(
 
 @Preview(showBackground = true)
 @Composable
-fun DoneView(
-    @PreviewParameter(WeatherPreviewParameterProvider::class) weather: WeatherData?
-) {
-    Column {
-        if (weather == null) {
-            EmptyView()
-        } else {
-            WeatherView(weather)
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun WeatherView(
+fun ResultsView(
     @PreviewParameter(WeatherPreviewParameterProvider::class) weather: WeatherData?
 ) {
     Row(

@@ -1,4 +1,4 @@
-package com.compton.weather.ui.vm
+package com.compton.weather.ui.weather
 
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -14,14 +14,8 @@ class WeatherViewModel(
     private val repository: WeatherRepository
 ) : ViewModel() {
 
-    sealed class State {
-        object Loading : State()
-        object Done : State()
-        object Error : State()
-    }
-
-    private val stateMutableLiveData = MutableLiveData<State>()
-    val stateLiveData: LiveData<State> = stateMutableLiveData
+    private val stateMutableLiveData = MutableLiveData<WeatherState>()
+    val stateLiveData: LiveData<WeatherState> = stateMutableLiveData
 
     private val weatherMutableLiveData = MutableLiveData<WeatherData>()
     val weatherLiveData: LiveData<WeatherData> = weatherMutableLiveData
@@ -30,11 +24,11 @@ class WeatherViewModel(
     val locationLiveData: LiveData<LocationData> = locationMutableLiveData
 
     fun fetchWeather() {
-        stateMutableLiveData.value = State.Loading
+        stateMutableLiveData.value = WeatherState.Loading
 
         // Check for location data
         if (locationMutableLiveData.value == null) {
-            stateMutableLiveData.value = State.Done
+            stateMutableLiveData.value = WeatherState.Empty
             return
         }
 
@@ -44,8 +38,9 @@ class WeatherViewModel(
                 // Check for city data
                 val city = locationMutableLiveData.value!!.city
                 if (!city.isNullOrEmpty()) {
-                    weatherMutableLiveData.value = repository.getWeather(city)
-                    stateMutableLiveData.value = State.Done
+                    val weather = repository.getWeather(city)
+                    weatherMutableLiveData.value = weather
+                    stateMutableLiveData.value = WeatherState.Results
                     return@launch
                 }
 
@@ -53,33 +48,29 @@ class WeatherViewModel(
                 val latitude = locationMutableLiveData.value!!.latitude
                 val longitude = locationMutableLiveData.value!!.longitude
                 if (latitude != null && longitude != null) {
-                    weatherMutableLiveData.value =
-                        repository.getWeather(latitude.toString(), longitude.toString())
-                    stateMutableLiveData.value = State.Done
+                    val weather = repository.getWeather(latitude.toString(), longitude.toString())
+                    weatherMutableLiveData.value = weather
+                    stateMutableLiveData.value = WeatherState.Results
                     return@launch
                 }
 
             } catch (e: Exception) {
                 Log.e(WeatherViewModel::class.simpleName, "Exception: $e")
-                stateMutableLiveData.value = State.Error
+                stateMutableLiveData.value = WeatherState.Error
             }
         }
     }
 
-    fun fetchLocation() {
-        // TODO
-    }
-
-    fun updateLocation(location: LocationData) {
+    fun setLocation(location: LocationData) {
         locationMutableLiveData.value = location
     }
 
     fun onLocationCheckFailed() {
-        stateMutableLiveData.value = State.Done
+        stateMutableLiveData.value = WeatherState.Empty
     }
 
     fun onLocationCheckCanceled() {
-        stateMutableLiveData.value = State.Done
+        stateMutableLiveData.value = WeatherState.Empty
     }
 
 }

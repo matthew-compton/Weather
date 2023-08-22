@@ -5,8 +5,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.compton.weather.ui.Screens
-import com.compton.weather.ui.screen.WeatherScreen
-import com.compton.weather.ui.vm.WeatherViewModel
+import com.compton.weather.ui.weather.WeatherScreen
+import com.compton.weather.ui.weather.WeatherViewModel
 
 @Composable
 fun NavGraph(

@@ -15,7 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.compton.weather.data.local.LocationData
 import com.compton.weather.ui.theme.WeatherTheme
-import com.compton.weather.ui.vm.WeatherViewModel
+import com.compton.weather.ui.weather.WeatherViewModel
+import com.compton.weather.util.getCachedLocation
 import com.compton.weather.util.isLocationPermissionGranted
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -30,8 +31,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setupLocationProvider()
         setupUI()
+        setupLocationCache()
+        setupLocationProvider()
     }
 
     private fun setupUI() {
@@ -45,6 +47,15 @@ class MainActivity : ComponentActivity() {
                     NavGraph(navController = navController, weatherViewModel = weatherViewModel)
                 }
             }
+        }
+    }
+
+    private fun setupLocationCache() {
+        val city = getCachedLocation(this)
+        if (city.isNotEmpty()) {
+            val location = LocationData(city)
+            weatherViewModel.setLocation(location)
+            weatherViewModel.fetchWeather()
         }
     }
 
@@ -71,7 +82,7 @@ class MainActivity : ComponentActivity() {
                         Log.i(MainActivity::class.simpleName, "City Data: $city")
                     }
                     val locationData = LocationData(city, latitude, longitude)
-                    weatherViewModel.updateLocation(locationData)
+                    weatherViewModel.setLocation(locationData)
                     weatherViewModel.fetchWeather()
                 }
                 .addOnFailureListener {
