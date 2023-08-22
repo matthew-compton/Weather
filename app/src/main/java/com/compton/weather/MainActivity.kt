@@ -32,8 +32,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setupUI()
-        setupLocationCache()
-        setupLocationProvider()
+        setupLocation()
     }
 
     private fun setupUI() {
@@ -50,12 +49,14 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun setupLocationCache() {
+    private fun setupLocation() {
         val city = getCachedLocation(this)
         if (city.isNotEmpty()) {
             val location = LocationData(city)
             weatherViewModel.setLocation(location)
             weatherViewModel.fetchWeather()
+        } else {
+            setupLocationProvider()
         }
     }
 
@@ -93,6 +94,9 @@ class MainActivity : ComponentActivity() {
                     Log.i(MainActivity::class.simpleName, "LocationServices canceled.")
                     weatherViewModel.onLocationCheckCanceled()
                 }
+        } else {
+            Log.i(MainActivity::class.simpleName, "Location Permission not granted.")
+            weatherViewModel.onLocationPermissionDenied()
         }
     }
 

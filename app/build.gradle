@@ -86,6 +86,9 @@ dependencies {
     // Location
     implementation 'com.google.android.gms:play-services-location:21.0.1'
 
+    // Image Loading
+    implementation("io.coil-kt:coil-compose:2.4.0")
+
     // Dependency Injection
     implementation "io.insert-koin:koin-android:$koin_version"
     implementation "io.insert-koin:koin-android-compat:$koin_version"

@@ -73,4 +73,8 @@ class WeatherViewModel(
         stateMutableLiveData.value = WeatherState.Empty
     }
 
+    fun onLocationPermissionDenied() {
+        stateMutableLiveData.value = WeatherState.Empty
+    }
+
 }

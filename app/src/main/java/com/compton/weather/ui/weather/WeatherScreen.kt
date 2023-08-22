@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.CircularProgressIndicator
@@ -32,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.compton.weather.data.local.LocationData
 import com.compton.weather.data.local.WeatherData
 import com.compton.weather.data.remote.WeatherListResponse
@@ -46,12 +48,6 @@ fun WeatherScreen(viewModel: WeatherViewModel) {
     val weather by viewModel.weatherLiveData.observeAsState(null)
     val location by viewModel.locationLiveData.observeAsState(null)
     val state by viewModel.stateLiveData.observeAsState(WeatherState.Loading)
-
-    LaunchedEffect(Unit) {
-        if (weather == null) {
-            viewModel.fetchWeather()
-        }
-    }
 
     Column {
         TextInputComponent(viewModel, location)
@@ -123,6 +119,16 @@ fun ResultsView(
             Spacer(modifier = Modifier.height(16.dp))
             Text("Temperature:")
             Text("${weather?.temperature}${WeatherUtils.DEGREES_F}")
+            Spacer(modifier = Modifier.height(16.dp))
+            Text("Weather:")
+            Text("${weather?.iconDescription}")
+            AsyncImage(
+                model = "https://openweathermap.org/img/wn/${weather?.iconPath}@4x.png",
+                contentDescription = "${weather?.iconDescription}",
+                modifier = Modifier
+                    .height(300.dp)
+                    .width(300.dp)
+            )
         }
     }
 }
