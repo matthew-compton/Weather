@@ -1,5 +1,6 @@
 package com.compton.weather
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.location.Address
 import android.location.Geocoder
@@ -8,6 +9,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -22,6 +24,7 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.Locale
+
 
 class MainActivity : ComponentActivity() {
 
@@ -97,7 +100,19 @@ class MainActivity : ComponentActivity() {
         } else {
             Log.i(MainActivity::class.simpleName, "Location Permission not granted.")
             weatherViewModel.onLocationPermissionDenied()
+            requestPermission.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
         }
     }
+
+    private val requestPermission =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                Log.i(MainActivity::class.simpleName, "Location permission granted.")
+                setupLocationProvider()
+            } else {
+                Log.i(MainActivity::class.simpleName, "Location permission denied.")
+                weatherViewModel.onLocationPermissionDenied()
+            }
+        }
 
 }
