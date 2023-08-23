@@ -15,7 +15,6 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -38,6 +37,9 @@ import com.compton.weather.data.local.LocationData
 import com.compton.weather.data.local.WeatherData
 import com.compton.weather.data.remote.WeatherListResponse
 import com.compton.weather.ui.weather.WeatherViewModel.*
+import com.compton.weather.util.IMAGE_EXTENSION
+import com.compton.weather.util.IMAGE_SIZE
+import com.compton.weather.util.IMAGE_URL
 import com.compton.weather.util.WeatherUtils
 import com.compton.weather.util.findActivity
 import com.compton.weather.util.setCachedLocation
@@ -123,7 +125,7 @@ fun ResultsView(
             Text("Weather:")
             Text("${weather?.iconDescription}")
             AsyncImage(
-                model = "https://openweathermap.org/img/wn/${weather?.iconPath}@4x.png",
+                model = "${IMAGE_URL}${weather?.iconPath}${IMAGE_SIZE}${IMAGE_EXTENSION}",
                 contentDescription = "${weather?.iconDescription}",
                 modifier = Modifier
                     .height(300.dp)
